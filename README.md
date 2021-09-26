@@ -22,3 +22,7 @@
 ## Question 2
 - Handle incoming request for `POST /post/rate` that accept `post_id` and `rate` of 1-5.
 - Returns average rating and total submitted ratings for the specific post.
+
+## Question 3
+- Handle incoming request for `GET /posts/top` that takes `limit` as query string parameter.
+- Returns list of post sorted by top average rating.

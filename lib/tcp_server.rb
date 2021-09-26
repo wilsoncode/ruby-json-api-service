@@ -77,6 +77,14 @@ app = -> environment {
       response.status = 422
       response.write({:message => exception}.to_json)
     end
+  elsif request.get? && request.path == '/posts/top'
+    @limit = request.params['limit']
+    @posts = Post.select('posts.id, posts.title, posts.content, avg(ratings.rate) as average_rating')
+      .joins(:ratings)
+      .group(:id)
+      .order(average_rating: :desc)
+      .limit(@limit)
+    response.write(@posts.to_json)
   else
     response.write({:message => 'App is running!'}.to_json)
   end
