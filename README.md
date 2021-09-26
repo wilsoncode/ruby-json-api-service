@@ -26,3 +26,7 @@
 ## Question 3
 - Handle incoming request for `GET /posts/top` that takes `limit` as query string parameter.
 - Returns list of post sorted by top average rating.
+
+## Question 4
+- Handle incoming request for `GET /ips`.
+- Returns list of ips with its associated users.

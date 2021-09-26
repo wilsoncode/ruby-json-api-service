@@ -53,38 +53,46 @@ app = -> environment {
   response.content_type = 'application/json'
 
   if request.post? && request.path == '/post/create'
-    @author = Author.find_or_create_by!(username: request.params['username'])
-    @post = @author.posts.new(title: request.params['title'], content: request.params['content'], ip: request.ip)
-    if @post.invalid?
+    author = Author.find_or_create_by!(username: request.params['username'])
+    post = author.posts.new(title: request.params['title'], content: request.params['content'], ip: request.ip)
+    if post.invalid?
       response.status = 422
-      response.write({:message => @post.errors.full_messages.inspect}.to_json)
+      response.write({:message => post.errors.full_messages.inspect}.to_json)
     else
-      @post.save()
-      response.write(@post.to_json)
+      post.save()
+      response.write(post.to_json)
     end
   elsif request.post? && request.path == '/post/rate'
     begin
-      @post = Post.find(request.params['post_id'])
-      @rating = @post.ratings.new(rate: request.params['rate'])
-      if @rating.invalid?
+      post = Post.find(request.params['post_id'])
+      rating = post.ratings.new(rate: request.params['rate'])
+      if rating.invalid?
         response.status = 422
-        response.write({:message => @rating.errors.full_messages.inspect}.to_json)
+        response.write({:message => rating.errors.full_messages.inspect}.to_json)
       else
-        @rating.save()
-        response.write({:average => @post.ratings.average(:rate), :total_count => @post.ratings.length()}.to_json)
+        rating.save()
+        response.write({:average => post.ratings.average(:rate), :total_count => post.ratings.length()}.to_json)
       end
     rescue ActiveRecord::RecordNotFound => exception
       response.status = 422
       response.write({:message => exception}.to_json)
     end
   elsif request.get? && request.path == '/posts/top'
-    @limit = request.params['limit']
-    @posts = Post.select('posts.id, posts.title, posts.content, avg(ratings.rate) as average_rating')
+    limit = request.params['limit']
+    posts = Post.select('posts.id, posts.title, posts.content, avg(ratings.rate) as average_rating')
       .joins(:ratings)
       .group(:id)
       .order(average_rating: :desc)
-      .limit(@limit)
-    response.write(@posts.to_json)
+      .limit(limit)
+    response.write(posts.to_json)
+  elsif request.get? && request.path == '/ips'
+    ips = Post.select(:ip).group(:ip).all.pluck(:ip)
+    result = Array.new
+    ips.each do |ip|
+      authors = Post.joins(:author).where(ip: ip).group('author_id').all.pluck('authors.username')
+      result << {:ip => ip, :authors => authors}
+    end
+    response.write(result.to_json)
   else
     response.write({:message => 'App is running!'}.to_json)
   end
