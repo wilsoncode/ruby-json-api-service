@@ -18,3 +18,7 @@
 - Handle incoming request for `POST /post/create` that accept `title`, `content`, and `username`.
   - Lookup existing `username` else create.
   - Save post associated with author.
+
+## Question 2
+- Handle incoming request for `POST /post/rate` that accept `post_id` and `rate` of 1-5.
+- Returns average rating and total submitted ratings for the specific post.

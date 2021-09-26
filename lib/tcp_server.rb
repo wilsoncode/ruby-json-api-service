@@ -62,6 +62,21 @@ app = -> environment {
       @post.save()
       response.write(@post.to_json)
     end
+  elsif request.post? && request.path == '/post/rate'
+    begin
+      @post = Post.find(request.params['post_id'])
+      @rating = @post.ratings.new(rate: request.params['rate'])
+      if @rating.invalid?
+        response.status = 422
+        response.write({:message => @rating.errors.full_messages.inspect}.to_json)
+      else
+        @rating.save()
+        response.write({:average => @post.ratings.average(:rate), :total_count => @post.ratings.length()}.to_json)
+      end
+    rescue ActiveRecord::RecordNotFound => exception
+      response.status = 422
+      response.write({:message => exception}.to_json)
+    end
   else
     response.write({:message => 'App is running!'}.to_json)
   end
