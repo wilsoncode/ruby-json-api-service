@@ -5,7 +5,11 @@
   ```sh
   $ bundle install
   ```
-2. Start the server
+2. Run the `lib/seeds.rb` to populate the database.
+   ```sh
+   $ ruby lib/seeds.rb
+   ```
+3. Start the server
   ```sh
   $ ruby lib/tcp_server.rb
 ```
